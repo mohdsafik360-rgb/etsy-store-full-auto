@@ -13,9 +13,11 @@
 
 ## Run in Google Colab ☁️
 
+[![Open In Colab](https://colab.research.google.com/assets/colab-badge.svg)](https://colab.research.google.com/github/28AXE/etsy-store-full-auto/blob/master/etsy_store_colab.ipynb)
+
 The fastest way to get started — no local setup required:
 
-1. Open [`etsy_store_colab.ipynb`](etsy_store_colab.ipynb) in Google Colab
+1. Open in Google Colab using the badge above or link below.
 2. Add your **Gemini API key** in Colab Secrets (🔑 sidebar → `GEMINI_API_KEY`)
 3. Run cells in order
 

@@ -43,6 +43,16 @@ def _get_api_key() -> str:
     if key:
         return key
 
+    # 3. Fall back to interactive prompt (useful in notebooks if secrets/env not set)
+    try:
+        import getpass
+        key = getpass.getpass("🔑 Enter your Gemini API Key: ").strip()
+        if key:
+            os.environ["GEMINI_API_KEY"] = key
+            return key
+    except Exception:
+        pass
+
     raise RuntimeError(
         "Gemini API key not found. Set it via:\n"
         "  • Google Colab: Add 'GEMINI_API_KEY' in Colab Secrets (🔑 sidebar)\n"
