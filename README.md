@@ -11,21 +11,34 @@
   Scrape competitors → Analyze gaps → Generate PDFs → Track performance
 </p>
 
+## Run in Google Colab ☁️
+
+The fastest way to get started — no local setup required:
+
+1. Open [`etsy_store_colab.ipynb`](etsy_store_colab.ipynb) in Google Colab
+2. Add your **Gemini API key** in Colab Secrets (🔑 sidebar → `GEMINI_API_KEY`)
+3. Run cells in order
+
+> Get a free API key at [aistudio.google.com/apikey](https://aistudio.google.com/apikey)
+
 ## Architecture
 
-4 agents, each with its own llm-council for multi-LLM deliberation:
+4 agents, each powered by **Gemini API** for AI deliberation:
 
 - **Scout** — Scrapes Etsy shops, extracts listing data (Playwright)
-- **Analyst** — Identifies market opportunities and gaps (pandas + council)
-- **Creator** — Generates product content and PDFs (council + reportlab)
-- **Optimizer** — Tracks performance and recommends improvements (council)
+- **Analyst** — Identifies market opportunities and gaps (pandas + Gemini)
+- **Creator** — Generates product content and PDFs (Gemini + reportlab)
+- **Optimizer** — Tracks performance and recommends improvements (Gemini)
 
-## Quick Start
+## Quick Start (Local)
 
 ```bash
 # Install dependencies
 uv sync
 uv run playwright install chromium
+
+# Set your Gemini API key
+export GEMINI_API_KEY="your-api-key-here"
 
 # Scrape a competitor shop
 uv run etsy-store scrape "ShopName" -o data/shop.json
@@ -42,21 +55,22 @@ uv run etsy-store generate "Daily Planner" -o output
 ```
 etsy-store/
 ├── scout/          # Scraping agent (Playwright + BeautifulSoup)
-├── analyst/        # Market analysis agent (pandas + llm-council)
-├── creator/        # Content generation agent (llm-council + PDF)
-├── optimizer/      # Performance tracking agent (analytics + council)
+├── analyst/        # Market analysis agent (pandas + Gemini)
+├── creator/        # Content generation agent (Gemini + PDF)
+├── optimizer/      # Performance tracking agent (analytics + Gemini)
 ├── config/         # Configuration files (niches, pricing)
+├── gemini_client.py  # Unified Gemini API wrapper
+├── etsy_store_colab.ipynb  # Google Colab notebook
 ├── data/           # Scraped data and analytics
 ├── docs/           # Documentation
-├── tests/          # Test suite
-└── .claude/        # llm-council configs per agent
+└── tests/          # Test suite
 ```
 
 ## Requirements
 
 - Python 3.10+
-- uv (package manager)
-- Ollama (for local LLMs)
+- uv (package manager) — for local usage
+- Gemini API key ([get one free](https://aistudio.google.com/apikey))
 - Playwright browsers
 
 ## License

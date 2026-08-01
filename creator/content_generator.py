@@ -1,20 +1,18 @@
-"""CREATOR Agent — Content generation with llm-council."""
+"""CREATOR Agent — Content generation with Gemini API."""
 
-import subprocess
 import json
 import re
 from pathlib import Path
 from typing import Optional
 
+import gemini_client
+
 
 class ContentGenerator:
-    """Generate product content using llm-council deliberation."""
-
-    def __init__(self, config_dir: str = ".claude"):
-        self.config_dir = Path(config_dir)
+    """Generate product content using Gemini-powered deliberation."""
 
     def generate_listing_title(self, product_type: str, tags: list[str], niche: str = "") -> str:
-        """Generate SEO-optimized listing title via council."""
+        """Generate SEO-optimized listing title via Gemini."""
         prompt = f"""Generate an Etsy listing title for: {product_type}
 
 Target niche: {niche or "general"}
@@ -28,10 +26,10 @@ Requirements:
 
 Return ONLY the title."""
 
-        return self._run_council("creator-council", prompt)
+        return gemini_client.generate(prompt)
 
     def generate_description(self, product_type: str, features: list[str], use_case: str) -> str:
-        """Generate product description via council."""
+        """Generate product description via Gemini."""
         prompt = f"""Write an Etsy product description for: {product_type}
 
 Key features:
@@ -48,10 +46,10 @@ Structure:
 
 Tone: Friendly, professional, helpful. Return the description only."""
 
-        return self._run_council("creator-council", prompt)
+        return gemini_client.generate(prompt)
 
     def generate_tags(self, product_type: str, target_audience: str) -> list[str]:
-        """Generate 13 Etsy tags via council (max 20 chars each)."""
+        """Generate 13 Etsy tags via Gemini (max 20 chars each)."""
         prompt = f"""Generate exactly 13 Etsy tags for: {product_type}
 Target audience: {target_audience}
 
@@ -63,23 +61,12 @@ Rules:
 
 Return as JSON array of exactly 13 strings."""
 
-        result = self._run_council("creator-council", prompt)
+        result = gemini_client.generate(prompt)
         try:
             json_match = re.search(r'\[(.+?)\]', result, re.DOTALL)
             if json_match:
                 tags = json.loads(f"[{json_match.group(1)}]")
                 return [t.strip()[:20] for t in tags if t][:13]
-        except:
+        except Exception:
             pass
         return ["digital planner", "printable", "productivity", "organization"][:13]
-
-    def _run_council(self, council_name: str, prompt: str) -> str:
-        """Run llm-council and return synthesis."""
-        config_path = self.config_dir / f"{council_name}.json"
-        result = subprocess.run(
-            ["uv", "run", "llm-council", "--config", str(config_path), prompt],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent
-        )
-        return result.stdout

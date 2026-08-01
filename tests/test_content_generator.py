@@ -16,14 +16,9 @@ class TestContentGenerator:
         assert gen is not None
 
     def test_generator_initialization(self):
-        """Test ContentGenerator initializes with default config_dir."""
+        """Test ContentGenerator initializes correctly."""
         gen = ContentGenerator()
-        assert gen.config_dir.name == ".claude"
-
-    def test_generator_custom_config_dir(self):
-        """Test ContentGenerator accepts custom config_dir."""
-        gen = ContentGenerator(config_dir="custom_config")
-        assert gen.config_dir.name == "custom_config"
+        assert gen is not None
 
 
 class TestPDFGenerator:

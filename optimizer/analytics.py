@@ -1,21 +1,21 @@
-"""OPTIMIZER Agent — Performance tracking with llm-council."""
+"""OPTIMIZER Agent — Performance tracking with Gemini API."""
 
 import json
 from datetime import datetime
 from pathlib import Path
 from typing import Optional
-import subprocess
 from collections import defaultdict
+
+import gemini_client
 
 
 class PerformanceTracker:
-    """Track Etsy performance with llm-council optimization recommendations."""
+    """Track Etsy performance with Gemini-powered optimization recommendations."""
 
     def __init__(self, data_dir: str = "data/analytics"):
         self.data_dir = Path(data_dir)
         self.data_dir.mkdir(parents=True, exist_ok=True)
         self.history_file = self.data_dir / "performance_history.jsonl"
-        self.config_dir = Path(".claude")
 
     def log_listing(self, listing_id: str, metrics: dict):
         """Log daily metrics for a listing."""
@@ -50,7 +50,7 @@ class PerformanceTracker:
         return trends
 
     def run_council_optimization(self, listings_data: list[dict]) -> list[dict]:
-        """Run llm-council to generate optimization recommendations."""
+        """Run Gemini-powered optimization recommendations."""
         prompt = f"""Analyze these Etsy listing performances and recommend optimizations:
 
 {json.dumps(listings_data, indent=2)}
@@ -63,19 +63,9 @@ For each listing with declining metrics, provide:
 
 Return as JSON array with: listing_id, diagnosis, action, priority, expected_impact"""
 
-        config_path = self.config_dir / "optimizer-council.json"
-        result = subprocess.run(
-            ["uv", "run", "llm-council", "--config", str(config_path), prompt],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent
-        )
-
-        import re
-        json_match = re.search(r'```json\s*(.+?)\s*```', result.stdout, re.DOTALL)
-        if json_match:
-            try:
-                return json.loads(json_match.group(1))
-            except json.JSONDecodeError:
-                pass
-        return [{"error": "Failed to parse council output", "raw": result.stdout}]
+        result = gemini_client.generate_json(prompt)
+        if isinstance(result, list):
+            return result
+        if isinstance(result, dict) and "error" not in result:
+            return [result]
+        return [{"error": "Failed to parse optimization output", "raw": str(result)}]

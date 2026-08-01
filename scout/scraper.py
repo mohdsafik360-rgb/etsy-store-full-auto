@@ -23,7 +23,11 @@ class EtsyScraper:
         playwright = await async_playwright().start()
         self._browser = await playwright.chromium.launch(
             headless=True,
-            args=["--disable-blink-features=AutomationControlled"]
+            args=[
+                "--disable-blink-features=AutomationControlled",
+                "--no-sandbox",
+                "--disable-dev-shm-usage",
+            ]
         )
         self._page = await self._browser.new_page()
         await self._page.add_init_script(

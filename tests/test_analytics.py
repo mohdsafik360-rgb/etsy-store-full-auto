@@ -12,7 +12,6 @@ class TestPerformanceTracker:
         """Test PerformanceTracker initializes correctly."""
         tracker = PerformanceTracker(str(tmp_path))
         assert tracker.history_file.parent == tmp_path
-        assert tracker.config_dir.name == ".claude"
 
     def test_tracker_creates_data_dir(self, tmp_path):
         """Test tracker creates data directory if it doesn't exist."""

@@ -1,20 +1,19 @@
-"""ANALYST Agent — Market data analysis with llm-council."""
+"""ANALYST Agent — Market data analysis with Gemini API."""
 
 import pandas as pd
-import subprocess
 import json
-import re
 from pathlib import Path
 from typing import Optional
 
+import gemini_client
+
 
 class MarketAnalyzer:
-    """Analyze Etsy market data with llm-council deliberation."""
+    """Analyze Etsy market data with Gemini-powered deliberation."""
 
     def __init__(self, data_dir: str = "data"):
         self.data_dir = Path(data_dir)
         self.df: Optional[pd.DataFrame] = None
-        self.config_dir = Path(".claude")
 
     def load_listings(self, filepath: str) -> pd.DataFrame:
         """Load listings data from JSON/CSV."""
@@ -30,7 +29,7 @@ class MarketAnalyzer:
         return self.df
 
     def run_council_analysis(self, data_sample: str) -> dict:
-        """Run llm-council deliberation on market data."""
+        """Run Gemini-powered deliberation on market data."""
         prompt = f"""Analyse these Etsy market data and identify opportunities:
 
 {data_sample}
@@ -44,22 +43,8 @@ Provide:
 
 Return as JSON with keys: best_sellers, price_ranges, top_tags, gaps, recommendations"""
 
-        config_path = self.config_dir / "analyst-council.json"
-        result = subprocess.run(
-            ["uv", "run", "llm-council", "--config", str(config_path), prompt],
-            capture_output=True,
-            text=True,
-            cwd=Path(__file__).parent.parent
-        )
-
-        output = result.stdout
-        try:
-            json_match = re.search(r'```json\s*(.+?)\s*```', output, re.DOTALL)
-            if json_match:
-                return json.loads(json_match.group(1))
-            return {"raw_analysis": output}
-        except json.JSONDecodeError:
-            return {"raw_analysis": output, "error": "Failed to parse JSON"}
+        result = gemini_client.generate_json(prompt)
+        return result if isinstance(result, dict) else {"raw_analysis": result}
 
     def prepare_data_for_council(self) -> str:
         """Prepare DataFrame as text for llm-council."""
